@@ -1,0 +1,148 @@
+#! /bin/bash
+
+
+# This can also be set as command-line option, but you will miss any debug
+# output before the options are set.
+DEBUG=false
+
+
+print_help () {
+    printf "
+NAME
+    acc - Active Coffee Compile
+
+SYNOPSIS
+    acc [OPTIONS] COFFEE_FILE_DIR JS_FILE_DIR
+
+DESCRIPTION
+    Watches all .coffee files in one directory tree, compiles and saves them to
+    .js in another tree when they are newer then their .js files.
+
+    You can even place the coffee directory within the main directory
+    containing the .js files.
+
+OPTIONS
+    -h, --help    
+        Print this help text and exit.
+
+    -i=n, --interval=n
+        The time (n), in seconds, between directory scans. Defaults to 2. Set
+        this to a longer interval if you have a very large .coffee file
+        directory tree and the scans are affecting performance.
+
+    -s, --single-run
+        Run the compiler once, scanning all files in the COFFEE_FILE_DIR, then
+        exit.
+
+    -v, --verbose
+        Print status output, otherwise, it remains completely silent aside from
+        error messages.
+
+    -d, --debug
+        Print debugging info.
+
+EXAMPLES
+    Run silently in the background:
+      acc ./js-project/coffee ./js-project &
+
+    Run every 10 seconds, instead of every second:
+      acc coffee-files/ /path/to/js-files -i=10 &
+"
+}
+
+warn () {
+    printf "\e[0;33m${1}\e[m\n" >&2
+}
+
+
+alarm () {
+    printf "\e[1;31m${1}\e[m\n" >&2
+}
+
+die () {
+    alarm "$1"
+    exit 1
+}
+
+check_directory () {
+    if [ ! -d $1 ]; then
+        die "Directory $1 does not exist. Aborting."
+    fi
+}
+
+
+start_dir=`pwd`
+verbose=false
+
+
+# Set defaults
+
+interval=2
+single_run=false
+
+
+#
+# Parse the command-line arguments.
+#
+# Code borrowed and modified from here: http://www.digitalpeer.com/id/parsing
+# ...with additional help from here:
+# http://www.linuxjournal.com/content/bash-parameter-expansion
+#
+for i in $*
+do
+    if $DEBUG; then echo 'In args for loop, current $i: '$i; fi
+    case $i in
+        -i=*|--interval=*)
+            interval=${i#*=}
+            ;;
+        -s|--single-run)
+            single_run=true
+            ;;
+        -h|--help)
+            print_help
+            exit
+            ;;
+        -v|--verbose)
+            verbose=true
+            ;;
+        -d|--debug)
+            DEBUG=true
+            ;;
+        *)
+            if [ $coffee_dir ]; then
+                js_dir=$i
+            else
+                coffee_dir=$i
+            fi
+        ;;
+    esac
+done
+
+if $DEBUG; then
+    echo '$coffee_dir: '$coffee_dir
+    echo '$js_dir: '$js_dir
+fi
+
+check_directory $coffee_dir
+check_directory $js_dir
+
+
+# Watch $coffee_dir, save compiled .js in $js_dir.
+cd $coffee_dir
+while true; do
+    for file in `find . | grep -E '\.coffee'`; do
+        #if $DEBUG; then echo '$start_dir: '$start_dir; fi
+        #if $DEBUG; then echo '$file before cd: '$file; echo "Current dir: "$PWD; fi
+        cd $start_dir
+        #if $DEBUG; then echo '$file after cd: '$file; echo "Current dir: "$PWD; fi
+        if [ ${coffee_dir}/$file -nt ${js_dir}/${file%.*}.js ]; then
+            if $verbose; then echo "Compiling: "${file}; fi
+            coffee -c -b -o ${js_dir}/`dirname $file` ${coffee_dir}/$file
+        fi
+    done
+    cd $coffee_dir
+
+    if $single_run; then break; fi
+
+    sleep $interval
+done

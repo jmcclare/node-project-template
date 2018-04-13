@@ -1,0 +1,50 @@
+#! /bin/bash
+
+#
+# Updates the live site with this directory's version.
+#
+
+
+#
+# These determine which server and user to use and which site to
+# update.
+#
+server='jwnergt.ca'
+server_user='psadmin'
+remote_site_name='contact.jwnergt.ca'
+
+
+site_dir=`cd $(dirname $0); cd ..; pwd`
+
+
+echo
+echo
+#echo "Copying site files to /tmp on ${server}..."
+echo "Syncing files to site directory ${remote_site_name} on server ${server}..."
+echo
+rsync -rltp --delete --exclude=.htpasswd --exclude=lib/node --exclude=src/node ${site_dir}/ ${server_user}@${server}:/srv/www/${remote_site_name}
+
+# Fix the site dir permissions that rsync may have broken. rsync matches it to
+# our local directory, which may be wrong for the server.
+ssh ${server_user}@${server} "find /srv/www/${remote_site_name} -type d -exec chmod a+rx {} +; find /srv/www/${remote_site_name} -type f -exec chmod a+r {} +"
+
+
+#echo
+#echo
+#echo "Synching tmp files to live site directory..."
+#echo
+#ssh ${server_user}@${server} "rsync -rltp --delete /tmp/${remote_site_name}/ /srv/www/${remote_site_name}"
+
+
+echo
+echo
+echo "Restarting site..."
+echo
+ssh ${server_user}@${server} "sudo stop node-${remote_site_name}; sudo start node-${remote_site_name}"
+
+
+#echo
+#echo
+#echo "Cleaning up tmp site files..."
+#echo
+#ssh ${server_user}@${server} "rm -rf /tmp/${remote_site_name}"

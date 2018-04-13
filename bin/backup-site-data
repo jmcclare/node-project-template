@@ -1,0 +1,29 @@
+#! /bin/bash
+
+#
+# Dumps the mongodb data for this site's database to files.
+#
+
+site_dir=$(cd `dirname $0`/../; pwd)
+
+# Bring in this site's config variables, including mongo_db.
+if [ -f ${site_dir}/config/runtime ]; then
+    source ${site_dir}/config/runtime
+else
+    echo "Can't find runtime config file ${site_dir}/config/runtime"
+    exit 1
+fi
+
+if [ ! -d ${site_dir}/data ]; then
+    mkdir -p ${site_dir}/data
+fi
+
+
+# NOTE: We cannot use --oplog for a real point-in-time snapshot because we are
+# not dumping the contents of the entire Mongo server, just one database.
+mongodump -d $mongodb_db --out ${site_dir}/data/db
+
+# Backup the files, if any.
+if [ -d ${site_dir}/app/public/_data ]; then
+    rsync -rltvogp --delete ${site_dir}/app/public/_data/ ${site_dir}/data/files
+fi

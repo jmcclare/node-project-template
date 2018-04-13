@@ -1,0 +1,34 @@
+#! /bin/bash
+
+#
+# Restores the mongodb data for this site's database.
+#
+
+site_dir=$(cd `dirname $0`/../; pwd)
+
+# Bring in this site's config variables, including mongo_db.
+if [ -f ${site_dir}/config/runtime ]; then
+    source ${site_dir}/config/runtime
+else
+    echo "Can't find runtime config file ${site_dir}/config/runtime"
+    exit 1
+fi
+
+
+# Drop the database
+mongo $mongodb_db --eval "db.dropDatabase()"
+
+
+# Restore from the backup
+
+# Restore the database backup, if any.
+if [ -d ${site_dir}/data/db ]; then
+    mongorestore --drop ${site_dir}/data/db
+fi
+
+# Restore the files, if any.
+if [ -d ${site_dir}/data/files ]; then
+    rsync -rltvogp --delete ${site_dir}/data/files/ ${site_dir}/app/public/_data
+else
+    rm -rf ${site_dir}/app/public/_data
+fi

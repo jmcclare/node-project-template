@@ -1,0 +1,49 @@
+#! /bin/bash
+
+#
+# This is a bash script meant to be sourced by commands that run the Node site.
+#
+# Note that this and the runsite command are best used only in development. Any
+# environment variables defined here should be defined by the command that runs
+# the site on the server to fit the server environment.
+#
+# See the notes on production server use below.
+#
+
+# Path to the Node app's lib directory, relative to the main site directory.
+# The runsite command will turn this into a fully qualified path.  This will
+# let us require modules in our app/lib directory by name, instead of using a
+# relative path.
+#
+# This should point to the same location in production.
+NODE_PATH=app/lib
+
+# The port the site will run under.
+#
+# This is mainly for development use. The production server should not use the
+# `runsite` command and instead run the `node` or `coffee` command directly
+# with all of the parameters. 
+PORT=3000
+
+# Set to true if the site must be run with the `coffee` command.
+coffeescript=true
+
+# The path, relative to the site's main directory, to the script to be run with
+# the node or coffee command.
+server_script=app/server.coffee
+
+# The hostname the mongodb server is running under.
+mongodb_host=localhost
+
+# The name, if any, of the MongoDB database this site uses. ex:
+#   mongodb_db=node-express-sandbox
+#
+# Testing aside, this should be set to a database name that in unique to this
+# site in the current environment.
+mongodb_db=node-express-sandbox
+
+# The directory files uploaded to the site are temporarily stored in before
+# being stored permanently or deleted.
+#
+# The production environment should set this to something unique for each site.
+upload_temp=/tmp/node-upload

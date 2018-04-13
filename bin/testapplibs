@@ -1,0 +1,21 @@
+#! /bin/bash
+
+#
+# This runs the tests (if any) for each module in the app/lib directory.
+#
+
+site_dir=$(cd `dirname $0`/../; pwd)
+start_dir="$(pwd)"
+app_dir="${site_dir}/app"
+app_lib_dir="${app_dir}/lib"
+
+
+for dir in ${app_lib_dir}/*; do
+    cd $dir
+    if [ -f Makefile ]; then
+        if [ -d 'test' ]; then
+            echo "Running tests for "`basename $dir`"..."
+            make test
+        fi
+    fi
+done

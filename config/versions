@@ -1,0 +1,18 @@
+#! /bin/bash
+
+#
+# This is a bash script meant to be sourced by installation commands
+#
+# We set the versions of software used by this project both in development and
+# running the Node app. Most versions default to 'latest' here. You should
+# update the noted ones to the specific version you have built and tested your
+# app with so that you don't run into surprises when deploying on a new
+# platform.
+#
+
+
+# TODO: change this to the specific version of Node you have built and tested
+# your app with.
+# For example, for v0.9.8, set this to '0.9.8'
+# To install the latest version of Node.js, set this to 'latest'
+node_version='latest'

@@ -1,0 +1,41 @@
+#! /bin/bash
+
+
+#
+# runsite - run your Node.js site
+#
+# This should be used only for development. A production server should run the
+# `node` or `coffee` command directly with all of the parameters. In
+# particular, a production server will need to set different `PORT` settings
+# for each running Node site.
+#
+
+
+site_dir=$(cd `dirname $0`/../; pwd)
+start_dir="$(pwd)"
+. ${site_dir}/bin/set_env
+
+
+# Set some defaults before we bring in the runtime config
+NODE_PATH=app/lib
+PORT=3000
+coffeescript=false
+server_script=app/server.js
+
+# Source the runtime config, if any.
+if [ -f ${site_dir}/config/runtime ]; then source ${site_dir}/config/runtime; fi
+
+
+if $coffeescript; then
+    run_command=coffee
+else
+    run_command=node
+fi
+
+
+# cd to the app directory so connect-assets can locate things properly.
+cd `dirname ${site_dir}/${server_script}`
+
+# We have to assign the the NODE_PATH variable here, in this command or it will
+# have no effect. The others are assigned here just in case.
+NODE_PATH=${site_dir}/${NODE_PATH} PORT=${PORT} NODE_ENV=${NODE_ENV} $run_command ${site_dir}/${server_script}

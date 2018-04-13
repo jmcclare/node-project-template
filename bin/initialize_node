@@ -1,0 +1,185 @@
+#! /bin/bash
+
+#
+# Downloads and installs node.js with Node Package Manager (npm).
+#
+# This can also be used to update.
+#
+
+main()
+{
+    #export DEBUG=0
+    site_dir=$(cd `dirname $0`/../; pwd)
+
+
+    # Import the project software versions.
+
+    node_version=''
+    if [ -f ${site_dir}/config/versions ]; then source ${site_dir}/config/versions; fi
+
+    #
+    # TODO: In config/versions, change node_version to the specific version of Node
+    # you have built and tested your app with.
+    # For example, for v0.9.8, set this to '0.9.8'
+    #
+
+    # Set default version if needed.
+    if [ -z "$node_version" ]; then node_version='latest'; fi
+
+
+    #
+    # Parse the command-line arguments.
+    #
+    # Code borrowed and modified from here: http://www.digitalpeer.com/id/parsing
+    # ...with additional help from here:
+    # http://www.linuxjournal.com/content/bash-parameter-expansion
+    #
+
+    coffeescript=1
+
+    for i in $*
+    do
+        if [[ $DEBUG = 0 ]]
+        then
+            echo 'In args for loop, current $i: '$i
+        fi
+
+        case $i in
+            --coffee)
+                coffeescript=0
+                ;;
+            -h|--help)
+                print_help
+                exit
+                ;;
+            -d|--debug)
+                export DEBUG=0
+                ;;
+            *)
+                alarm "Invalid option.\nUsage:\n"
+                print_help
+                exit 1
+                ;;
+        esac
+    done
+
+
+
+    #
+    # Set the Node distribution archive URL
+    #
+
+    if [[ "${node_version}" = 'latest' ]]
+    then
+        latest_node_build_archive="$(curl -s 'https://nodejs.org/dist/latest/' | grep -Eo '>node-v[0-9.]*-linux-x64\.tar\.gz' | grep -Eo 'node-v[0-9.]*-linux-x64\.tar\.gz')"
+        archive_url="https://nodejs.org/dist/latest/${latest_node_build_archive}"
+    else
+        archive_url="http://nodejs.org/dist/v${node_version}/node-v${node_version}-linux-x64.tar.gz"
+    fi
+
+
+    cd $site_dir
+
+    # Clean out any existing version in case we are updating.
+    rm -rf lib/node
+    mkdir -p lib/node
+
+    cd lib/node
+
+    # Download and extract the specified archive
+    curl "${archive_url}" | tar xz --strip-components=1
+
+
+    cd $site_dir
+    # Source our environment variables to setup the path
+    . ./bin/set_env
+
+
+    #
+    # Install CoffeeScript.
+    #
+    # We may only need this for a pure coffee site, but this way we don't have
+    # to remember the --coffee option when we run this to initialize on a new
+    # server. Installing it when we don't need it is harmless.
+    #
+    npm install -g coffeescript js2coffee
+}
+
+
+print_help()
+{
+    printf "
+NAME
+    initialize_node
+
+SYNOPSIS
+    initialize_node [OPTIONS]
+
+DESCRIPTION
+    Downloads and installs Node.js in this project directory.
+
+OPTIONS
+    -h, --help    
+        Print this help text and exit.
+
+    --coffee
+        Install CoffeeScript along with Node.
+
+    -d, --debug    
+        Print debugging output while running.
+"
+}
+
+
+#
+# warn - print warning message
+#
+# $1 - message
+#
+warn()
+{
+    # print to regular output in regular orange
+    printf "\e[0;33m"
+    # Print the message with `echo` to prevent anything in the string from
+    # being interpreted as formatting characters.
+    echo "${1}"
+    printf "\e[m"
+}
+
+
+#
+# alarm - print alarm / error message
+#
+# $1 - message
+#
+alarm()
+{
+    # print to error output in bold red
+    printf "\e[1;31m" >&2
+    # Print the message with `echo` to prevent anything in the string from
+    # being interpreted as formatting characters.
+    echo "${1}" >&2
+    printf "\e[m" >&2
+}
+
+
+#
+# die - print an alarm message and exit with an error code
+#
+# $1 - error message to print
+# $2 - (optional) error code to exit with, defaults to 1
+#
+die()
+{
+    alarm "${1}"
+
+    if [ ! -z "${2}" ]
+    then
+        exit ${2}
+    else
+        exit 1
+    fi
+}
+
+
+main "${@}"

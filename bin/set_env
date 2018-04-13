@@ -1,0 +1,46 @@
+#! /bin/bash
+
+#
+# Set the $PATH for working with this project
+#
+# Source this file like so:
+#
+#   . ./set_env
+#
+# or:
+#
+#   source ./set_env
+#
+
+
+#
+# This is the short version of the technique from this page:
+#   http://stackoverflow.com/questions/59895/can-a-bash-script-tell-what-directory-its-stored-in
+#
+script_dir=$(cd $( dirname "${BASH_SOURCE[0]}") && pwd)
+project_dir=$(cd ${script_dir} && cd ../ && pwd)
+
+
+# Add the project commands and the node bin directory to the front of the path
+# so that they override other versions we may have.
+#PATH=${HOME}/work/areas/web/projects/sakuramai.ca/bin:${HOME}/work/areas/web/projects/sakuramai.ca/lib/node/bin:${PATH}
+PATH=${project_dir}/bin:${project_dir}/lib/node/bin:${PATH}
+
+
+#
+# Increase the max number of inotify instances. We found that this was set to
+# 128 in Ubuntu 12.04.
+#
+# There should be a way to set this permanently for the system, but for now,
+# setting this at runtime will let us run a compound site in development mode.
+# This should not be a problem for a deployed CompoundJS site because `watch`
+# is only used in dev mode.
+#
+# This fix was found here:
+#   http://stackoverflow.com/questions/10129496/error-starting-todos-example
+#
+# See also:
+#   https://github.com/joyent/node/issues/2479
+#   
+
+sudo /bin/sh -c "echo 8192 > /proc/sys/fs/inotify/max_user_instances"

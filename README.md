@@ -1,11 +1,15 @@
 # Node.js Site #
 
-This is a site built with Node.js.
+A template for a Node.js website project.
 
 Site-specific commands are in the `bin` directory. Run the following to make
 them available:
 
     . ./bin/set_env
+
+Your Node.js app should go in the `app` directory. If you are using one of the
+commands to setup the Node site template, it will create this for you.
+Otherwise, create the `app` directory and fill it in yourself.
 
 
 ## Initialization ##

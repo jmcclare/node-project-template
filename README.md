@@ -5,7 +5,7 @@ A template for a Node.js website project.
 Site-specific commands are in the `bin` directory. Run the following to make
 them available:
 
-    . ./bin/set_env
+    . ./bin/set-env
 
 Your Node.js app should go in the `app` directory. If you are using one of the
 commands to setup the Node site template, it will create this for you.
@@ -16,7 +16,7 @@ Otherwise, create the `app` directory and fill it in yourself.
 
 To install Node.js with npm, run the following:
 
-    ./bin/initialize_node
+    ./bin/initialize-node
 
 You should run this again whenever you re-deploy the site on a new server. Make
 sure you go through the post-installation below the first time you install.
@@ -24,64 +24,49 @@ sure you go through the post-installation below the first time you install.
 To install Node.js with npm and Express and create a starting Express site with
 our template, run the following:
 
-    ./bin/create_express_site
+    ./bin/create-express-site
 
 
 ## Running the Site ##
 
 To add this site's installation of `node` to your path, run the following:
 
-    . ./bin/set_env
+    . ./bin/set-env
 
-For a pure ExpressJS site:
+For any of the auto‐created sites, you can run the site in development mode with:
 
-    node app/app.js
+```bash
+cd app
+npm start
+```
 
-Or, if you are building a pure CoffeeScript app:
+See the README and the `package.json` in the `app` directory for details on
+other app commands and how to run it in production mode.
 
-    coffee app/server.coffee
-
-For commands to run / restart the site in production, see your server
-configuration, or `server-info.txt` if it is provided.
+Production mode details may also be setup by your server config. If this is on
+the server, look for a `server-info.txt` for details on how to configure or
+manually control the site process.
 
 
 ## Post-Installation ##
 
-After installing Node with `initialize_node`, you should edit `config/versions`
+Befre installing Node with `initialize-node`, you should edit `config/versions`
 to set `node_version` to the specific node release you will use for this
 project. This way, when you re-deploy to a new server you can run
-`initialize_node` again and recompile using the same version of Node.
+`initialize-node` again and recompile using the same version of Node.
 
-Run the following after initializing Node to find the version you just
-installed:
+Note that the site creation commands run `initialize-node` for you.
 
-    . ./bin/set_env
+If you left `node_version` set to `latest`, run the following after
+initializing Node to find the version you just installed:
+
+    . ./bin/set-env
     node --version
-
-You should also nail down the versions of all Node packages you are using for
-your site. These are usually specified in `app/package.json`. It's alright to
-grab the latest version of everything when you create a new site, but when you
-re-deploy a site, you want the same versions your development servers are
-using.
-
-For each package listed in `package.json`, run <package-name> --version to see
-which version you have. Put this version number in `package.json` instead of
-`*` or `latest`.
-
-
-## Updating jmcclare web-templates ##
-
-See the `README.md` in `lib/jmcclare-web-templates/node-express` for detailed
-instructions on updating these files.
-
-Download the [latest `.tar.gz` of
-web-templates](https://github.com/jmcclare/web-templates/tarball/master) from
-GitHub.
 
 
 ## Static Files ##
 
-Node can serve static files on it's own. It usually serves everything in the
+Node can serve static files on it’s own. It usually serves everything in the
 `app/public` directory. We also usually have NGinx setup to serve static files.
 If you place (or symlink) static files in the `public` directory, NGinx will
 serve them itself instead of passing the request off to the Node process.
@@ -92,3 +77,5 @@ file serving with NGinx, which can be better than Node.
 For development mode, Node will be serving the static files, which means they
 must also be in `app/public`. We find it best to keep all files in `app/public`
 and symlink the files and directories we want NGinx to serve into `public`.
+It’s simpler to keep the app specific code and static files all in `app` so
+that you can deploy the Node app in a different site directory.

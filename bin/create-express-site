@@ -5,93 +5,156 @@
 # Creates a new express site in the app directory.
 #
 
-site_dir=$(cd `dirname $0`/../; pwd)
-start_dir="$(pwd)"
+main() {
+    site_dir=$(cd `dirname $0`/../; pwd)
+    start_dir="$(pwd)"
+    git_repo_url='git@github.com:jmcclare/node-express-template.git'
 
 
-# Install the latest version of node.
+    # Install the configured version of node.
 
-${site_dir}/bin/initialize_node
+    ${site_dir}/bin/initialize-node
 
-cd $site_dir
-# Source our environment variables to setup the path
-. ./bin/set_env
+    cd $site_dir
+    # Source our environment variables to setup the path
+    . ./bin/set-env
 
 
-# This set of commands is what creates a new Express site if you do not
-# already have a full template of your own. You can uncomment and run these to
-# see the newest version of the the starting Express site template.
-# 
-# # Install express and create the new site
-# 
-# # Install express
-# npm install -g express
-# # Create the new express site with .jade templates.
-# # NOTE: We will probably override all of this with our own packages.json
-# express app
-# # Install the site's dependencies (including express)
-# cd app
-# npm install
+    # This set of commands is what creates a new Express site if you do not
+    # already have a full template of your own. You can uncomment and run these to
+    # see the newest version of the the starting Express site template.
+    # 
+    # # Install express and create the new site
+    # 
+    # # Install express
+    # npm install -g express
+    # # Create the new express site with .jade templates.
+    # # NOTE: We will probably override all of this with our own packages.json
+    # express app
+    # # Install the site's dependencies (including express)
+    # cd app
+    # npm install
+
+
+    # Clone our node-express-template repo into a new app directory and delete
+    # its .git dir.
+
+    if [ -d "${site_dir}/app" ]
+    then
+        die "There is already an app directory in this project. Rename or remove that before we create the starting Express site."
+    fi
+
+    git clone "${git_repo_url}" "${site_dir}/app"
+    check_err $? "Something went wrong cloning ${git_repo_url}"
+
+    rm -rf "${site_dir}/app/.git"
+
+
+    # Install the site’s node_modules, in case they are not included in the
+    # repo.
+    cd app
+    npm install
+
+
+    # NOTE: Hold off on this part until we figure out how to get Nginx to serve
+    # specific path extensions with it's own static file server.
+    #
+    # Move the contents of the app's public directory into the site's main public
+    # directory and delete the app's.
+    #rsync -rltvp ${site_dir}/app/public/* ${site_dir}/public/
+    #rm -rf ${site_dir}/app/public
+
+    # Tell Node to use the site's main public directory
+    #sed -i "s/ *app\.use(express\.static(.*/  app.use(express.static(path.join(__dirname.substring(0, __dirname.lastIndexOf(\"\/\")), 'public')));/" ${site_dir}/app/app.js
+
+
+    echo
+    echo "At this point, if you are serving the site in production mode, you should restart it."
+    echo "This is usually done with upstart:"
+    echo
+    echo "sudo stop node-site-name; sudo start node-site-name"
+    echo
+    echo "See server-info.txt, if provided."
+}
 
 
 #
-# Above here is the standard express site setup.
-# Below here is where we customize it to our tastes.
+# warn - print warning message
 #
-
-
-# download and extract our web-templates
-
-wget https://github.com/jmcclare/web-templates/tarball/master -O ${site_dir}/src/jmcclare-web-templates.tar.gz
-tmpdir=$(mktemp -d /tmp/XXXXXXXX) || exit 1
-tar -xzvf ${site_dir}/src/jmcclare-web-templates.tar.gz -C ${tmpdir}
-# There should be one directory in the archive named after the github user,
-# project and commit ID. Get that directory's name.
-for dir in ${tmpdir}/*; do
-    wt_rel_name=$(basename $dir)
-done
-# Make sure an nginx process can read all public files.
-chmod -R go+rX ${tmpdir}/${wt_rel_name}
-# Just in case the current release is already there, clear it and bring in this
-# fresh copy.
-rm -rf ${site_dir}/lib/${wt_rel_name}
-mv ${tmpdir}/${wt_rel_name} ${site_dir}/lib/
-rm -rf $tmpdir
-rm -f ${site_dir}/lib/jmcclare-web-templates
-cd ${site_dir}/lib
-ln -sf ./${wt_rel_name} ./jmcclare-web-templates
-cd ${start_dir}
-
-
-# Copy our Express app starting template into the app directory that our
-# standard Nginx Node site setup will look for.
-
-rsync -rltvp --delete --exclude="README.md" --exclude="RELEASES" \
-    ${site_dir}/lib/jmcclare-web-templates/node-express/ ${site_dir}/app
-
-
-# Install the site's dependencies (including express) using the package.json we
-# just added
-cd app
-npm install
-
-
-# NOTE: Hold off on this part until we figure out how to get Nginx to serve
-# specific path extensions with it's own static file server.
+# $1 - message
 #
-# Move the contents of the app's public directory into the site's main public
-# directory and delete the app's.
-#rsync -rltvp ${site_dir}/app/public/* ${site_dir}/public/
-#rm -rf ${site_dir}/app/public
+warn()
+{
+    # print to regular output in regular orange
+    printf "\e[0;33m"
+    # Print the message with `echo` to prevent anything in the string from
+    # being interpreted as formatting characters.
+    echo "${1}"
+    printf "\e[m"
+}
 
-# Tell Node to use the site's main public directory
-#sed -i "s/ *app\.use(express\.static(.*/  app.use(express.static(path.join(__dirname.substring(0, __dirname.lastIndexOf(\"\/\")), 'public')));/" ${site_dir}/app/app.js
+
+#
+# alarm - print alarm / error message
+#
+# $1 - message
+#
+alarm()
+{
+    # print to error output in bold red
+    printf "\e[1;31m" >&2
+    # Print the message with `echo` to prevent anything in the string from
+    # being interpreted as formatting characters.
+    echo "${1}" >&2
+    printf "\e[m" >&2
+}
 
 
-echo
-echo "At this point, if you are serving the site in production mode, you should restart it."
-echo "This is usually done with upstart:"
-echo
-echo "sudo stop node-site-name; sudo start node-site-name"
-echo
-echo "See server-info.txt, if provided."
+#
+# die - print an alarm message and exit with an error code
+#
+# $1 - error message to print
+# $2 - (optional) error code to exit with, defaults to 1
+#
+die()
+{
+    alarm "${1}"
+
+    if [ ! -z "${2}" ]
+    then
+        exit ${2}
+    else
+        exit 1
+    fi
+}
+
+
+#
+# check_err - check an error code and exit if it’s not success.
+#
+# $1 - return code to check
+# $2 - (optional) text to display on failure. Defaults to basic message.
+# $3 - (optional) error code to exit with on failure, defaults to 1
+#
+check_err()
+{
+    if [ "${1}" -ne "0" ]
+    then
+        if [ -z "${2}" ]
+        then
+            message="Command returned fatal error."
+        else
+            message="${2}"
+        fi
+
+        if [ -z "${3}" ]
+        then
+            die "${2}"
+        else
+            die "${2}" "${3}"
+        fi
+    fi
+}
+
+
+main "${@}"

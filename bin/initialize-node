@@ -92,7 +92,7 @@ main()
 
     cd $site_dir
     # Source our environment variables to setup the path
-    . ./bin/set_env
+    . ./bin/set-env
 
 
     #
@@ -110,10 +110,10 @@ print_help()
 {
     printf "
 NAME
-    initialize_node
+    initialize-node
 
 SYNOPSIS
-    initialize_node [OPTIONS]
+    initialize-node [OPTIONS]
 
 DESCRIPTION
     Downloads and installs Node.js in this project directory.

@@ -5,11 +5,11 @@
 #
 # Source this file like so:
 #
-#   . ./set_env
+#   . ./set-env
 #
 # or:
 #
-#   source ./set_env
+#   source ./set-env
 #
 
 

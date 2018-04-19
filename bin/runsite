@@ -13,7 +13,7 @@
 
 site_dir=$(cd `dirname $0`/../; pwd)
 start_dir="$(pwd)"
-. ${site_dir}/bin/set_env
+. ${site_dir}/bin/set-env
 
 
 # Set some defaults before we bring in the runtime config

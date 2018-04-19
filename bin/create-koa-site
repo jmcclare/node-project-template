@@ -2,13 +2,13 @@
 
 #
 # Downloads and installs node.js, Node Package Manager (npm) and express.
-# Creates a new express site in the app directory.
+# Creates a new, basic koa site in the app directory.
 #
 
 main() {
     site_dir=$(cd `dirname $0`/../; pwd)
     start_dir="$(pwd)"
-    git_repo_url='git@github.com:jmcclare/node-express-template.git'
+    git_repo_url='git@github.com:jmcclare/koa-template.git'
 
 
     # Install the configured version of node.
@@ -20,23 +20,7 @@ main() {
     . ./bin/set-env
 
 
-    # This set of commands is what creates a new Express site if you do not
-    # already have a full template of your own. You can uncomment and run these to
-    # see the newest version of the the starting Express site template.
-    # 
-    # # Install express and create the new site
-    # 
-    # # Install express
-    # npm install -g express
-    # # Create the new express site with .jade templates.
-    # # NOTE: We will probably override all of this with our own packages.json
-    # express app
-    # # Install the site's dependencies (including express)
-    # cd app
-    # npm install
-
-
-    # Clone our node-express-template repo into a new app directory and delete
+    # Clone our koa-template repo into a new app directory and delete
     # its .git dir.
 
     if [ -d "${site_dir}/app" ]
@@ -49,46 +33,8 @@ main() {
 
     rm -rf "${site_dir}/app/.git"
 
-
-    # Install the site’s node_modules, in case they are not included in the
-    # repo.
-    #
-    # NOTE: We skip this because the node_modules should be included in a
-    # tested state in the repo. Updating them is a maintenance task that could
-    # cause problems.
-    #cd app
-    #npm install
-
-
     echo
     echo "Your starting site is now installed in the app directory. See the README and package.json there to find out how to run it develop it."
-
-
-    #
-    # The stuff below is only relevent if this is a live site directory being
-    # served by an NGinX server and a system process to start the Node app. You
-    # are better off handling this with your deployment procedure.
-    #
-
-    # NOTE: Hold off on this part until we figure out how to get Nginx to serve
-    # specific path extensions with it's own static file server.
-    #
-    # Move the contents of the app's public directory into the site's main public
-    # directory and delete the app's.
-    #rsync -rltvp ${site_dir}/app/public/* ${site_dir}/public/
-    #rm -rf ${site_dir}/app/public
-
-    # Tell Node to use the site's main public directory
-    #sed -i "s/ *app\.use(express\.static(.*/  app.use(express.static(path.join(__dirname.substring(0, __dirname.lastIndexOf(\"\/\")), 'public')));/" ${site_dir}/app/app.js
-
-
-    #echo
-    #echo "At this point, if you are serving the site in production mode, you should restart it."
-    #echo "This is usually done with upstart:"
-    #echo
-    #echo "sudo stop node-site-name; sudo start node-site-name"
-    #echo
-    #echo "See server-info.txt, if provided."
 }
 
 

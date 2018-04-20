@@ -21,6 +21,11 @@ To install Node.js with npm, run the following:
 You should run this again whenever you re-deploy the site on a new server. Make
 sure you go through the post-installation below the first time you install.
 
+To install Node.js with npm and Koa and create a starting Koa 2 site with our
+template, run the following:
+
+    ./bin/create-koa-site
+
 To install Node.js with npm and Express and create a starting Express site with
 our template, run the following:
 

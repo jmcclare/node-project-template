@@ -14,12 +14,15 @@ Otherwise, create the `app` directory and fill it in yourself.
 
 ## Initialization ##
 
+You should edit `config/versions` to set `node_version` to the specific node
+release you will use for this project. It will fetch the latest Node version by
+default.
+
 To install Node.js with npm, run the following:
 
     ./bin/initialize-node
 
-You should run this again whenever you re-deploy the site on a new server. Make
-sure you go through the post-installation below the first time you install.
+Note that the site creation commands below run `initialize-node` for you.
 
 To install Node.js with npm and Koa and create a starting Koa 2 site with our
 template, run the following:
@@ -51,22 +54,6 @@ other app commands and how to run it in production mode.
 Production mode details may also be setup by your server config. If this is on
 the server, look for a `server-info.txt` for details on how to configure or
 manually control the site process.
-
-
-## Post-Installation ##
-
-Befre installing Node with `initialize-node`, you should edit `config/versions`
-to set `node_version` to the specific node release you will use for this
-project. This way, when you re-deploy to a new server you can run
-`initialize-node` again and recompile using the same version of Node.
-
-Note that the site creation commands run `initialize-node` for you.
-
-If you left `node_version` set to `latest`, run the following after
-initializing Node to find the version you just installed:
-
-    . ./bin/set-env
-    node --version
 
 
 ## Static Files ##

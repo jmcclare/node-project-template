@@ -22,7 +22,7 @@ echo
 #echo "Copying site files to /tmp on ${server}..."
 echo "Syncing files to site directory ${remote_site_name} on server ${server}..."
 echo
-rsync -rltp --delete --exclude=.htpasswd --exclude=lib/node --exclude=src/node ${site_dir}/ ${server_user}@${server}:/srv/www/${remote_site_name}
+rsync -rltp --delete --exclude=server-info.txt --exclude=.htpasswd --exclude=/bin ${site_dir}/ ${server_user}@${server}:/srv/www/${remote_site_name}
 
 # Fix the site dir permissions that rsync may have broken. rsync matches it to
 # our local directory, which may be wrong for the server.
@@ -40,7 +40,7 @@ echo
 echo
 echo "Restarting site..."
 echo
-ssh ${server_user}@${server} "sudo stop node-${remote_site_name}; sudo start node-${remote_site_name}"
+ssh ${server_user}@${server} "sudo /bin/systemctl stop node-${remote_site_name}; sudo /bin/systemctl start node-${remote_site_name}"
 
 
 #echo

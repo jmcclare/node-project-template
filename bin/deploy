@@ -12,6 +12,7 @@
 server='jwnergt.ca'
 server_user='psadmin'
 remote_site_name='contact.jwnergt.ca'
+app_pub_dir='app/build/public'
 
 
 site_dir=`cd $(dirname $0); cd ..; pwd`
@@ -23,6 +24,14 @@ echo
 echo "Syncing files to site directory ${remote_site_name} on server ${server}..."
 echo
 rsync -rltp --delete --exclude=server-info.txt --exclude=.htpasswd --exclude=/bin ${site_dir}/ ${server_user}@${server}:/srv/www/${remote_site_name}
+
+# Make sure the app’s public/_data dir exists
+ssh ${server_user}@${server} "mkdir -p /srv/www/${remote_site_name}/${app_pub_dir}/_data"
+
+# Symlink everything in the app’s public dir to the main public dir so that
+# NGinX will serve it instead.
+ssh ${server_user}@${server} "rm -rf /srv/www/${remote_site_name}/public/*"
+ssh ${server_user}@${server} 'for item in $(ls /srv/www/'${remote_site_name}/${app_pub_dir}'); do ln -s /srv/www/'${remote_site_name}/${app_pub_dir}/'${item} /srv/www/'${remote_site_name}'/public/${item}; done'
 
 # Fix the site dir permissions that rsync may have broken. rsync matches it to
 # our local directory, which may be wrong for the server.

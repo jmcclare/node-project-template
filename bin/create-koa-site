@@ -34,7 +34,7 @@ main() {
     rm -rf "${site_dir}/app/.git"
 
     echo
-    echo "Your starting site is now installed in the app directory. See the README and package.json there to find out how to run it develop it."
+    echo "Your starting site is now installed in the app directory. See the README and package.json there to find out how to run and develop it."
 }
 
 

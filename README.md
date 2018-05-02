@@ -1,4 +1,4 @@
-# Node.js Site #
+# Node.js Project Template #
 
 A template for a Node.js website project.
 

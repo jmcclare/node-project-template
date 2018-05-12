@@ -12,7 +12,6 @@
 server='jwnergt.ca'
 server_user='psadmin'
 remote_site_name='contact.jwnergt.ca'
-app_pub_dir='app/build/public'
 
 
 site_dir=`cd $(dirname $0); cd ..; pwd`
@@ -23,26 +22,15 @@ echo
 #echo "Copying site files to /tmp on ${server}..."
 echo "Syncing files to site directory ${remote_site_name} on server ${server}..."
 echo
-rsync -rltp --delete --exclude=server-info.txt --exclude=.htpasswd --exclude=/bin ${site_dir}/ ${server_user}@${server}:/srv/www/${remote_site_name}
 
-# Make sure the app’s public/_data dir exists
-ssh ${server_user}@${server} "mkdir -p /srv/www/${remote_site_name}/${app_pub_dir}/_data"
-
-# Symlink everything in the app’s public dir to the main public dir so that
-# NGinX will serve it instead.
-ssh ${server_user}@${server} "rm -rf /srv/www/${remote_site_name}/public/*"
-ssh ${server_user}@${server} 'for item in $(ls /srv/www/'${remote_site_name}/${app_pub_dir}'); do ln -s /srv/www/'${remote_site_name}/${app_pub_dir}/'${item} /srv/www/'${remote_site_name}'/public/${item}; done'
+# Sync the project directory minux the app.
+rsync -rltp --delete --exclude=server-info.txt --exclude=.htpasswd --exclude=.git --exclude-.gitignore --exclude=/app ${site_dir}/ ${server_user}@${server}:/srv/www/${remote_site_name}
+# Sync the built app.
+rsync -rltp --delete --exclude="/public/_data" ${site_dir}/app/build/ ${server_user}@${server}:/srv/www/${remote_site_name}/app
 
 # Fix the site dir permissions that rsync may have broken. rsync matches it to
 # our local directory, which may be wrong for the server.
 ssh ${server_user}@${server} "find /srv/www/${remote_site_name} -type d -exec chmod a+rx {} +; find /srv/www/${remote_site_name} -type f -exec chmod a+r {} +"
-
-
-#echo
-#echo
-#echo "Synching tmp files to live site directory..."
-#echo
-#ssh ${server_user}@${server} "rsync -rltp --delete /tmp/${remote_site_name}/ /srv/www/${remote_site_name}"
 
 
 echo
@@ -50,10 +38,3 @@ echo
 echo "Restarting site..."
 echo
 ssh ${server_user}@${server} "sudo /bin/systemctl stop node-${remote_site_name}; sudo /bin/systemctl start node-${remote_site_name}"
-
-
-#echo
-#echo
-#echo "Cleaning up tmp site files..."
-#echo
-#ssh ${server_user}@${server} "rm -rf /tmp/${remote_site_name}"

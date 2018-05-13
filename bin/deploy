@@ -9,9 +9,9 @@
 # These determine which server and user to use and which site to
 # update.
 #
-server='jwnergt.ca'
-server_user='psadmin'
-remote_site_name='contact.jwnergt.ca'
+server='example.com'
+server_user='username'
+remote_site_name='something.com'
 
 
 site_dir=`cd $(dirname $0); cd ..; pwd`
@@ -24,9 +24,9 @@ echo "Syncing files to site directory ${remote_site_name} on server ${server}...
 echo
 
 # Sync the project directory minux the app.
-rsync -rltp --delete --exclude=server-info.txt --exclude=.htpasswd --exclude=.git --exclude-.gitignore --exclude=/app ${site_dir}/ ${server_user}@${server}:/srv/www/${remote_site_name}
+rsync -rltp --delete --exclude=/app --exclude=server-info.txt --exclude=.htpasswd --exclude=.git --exclude=.gitignore --exclude=.gitatributes ${site_dir}/ ${server_user}@${server}:/srv/www/${remote_site_name}
 # Sync the built app.
-rsync -rltp --delete --exclude="/public/_data" ${site_dir}/app/build/ ${server_user}@${server}:/srv/www/${remote_site_name}/app
+rsync -rltp --delete --exclude='/public/_data' --exclude=.git --exclude=.gitignore --exclude=.gitatributes ${site_dir}/app/build/ ${server_user}@${server}:/srv/www/${remote_site_name}/app
 
 # Fix the site dir permissions that rsync may have broken. rsync matches it to
 # our local directory, which may be wrong for the server.

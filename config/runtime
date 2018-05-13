@@ -10,13 +10,15 @@
 # See the notes on production server use below.
 #
 
+site_dir=$(cd `dirname $0`/../; pwd)
+
 # Path to the Node app's lib directory, relative to the main site directory.
 # The runsite command will turn this into a fully qualified path.  This will
 # let us require modules in our app/lib directory by name, instead of using a
 # relative path.
 #
 # This should point to the same location in production.
-NODE_PATH=app/lib
+NODE_PATH="${site_dir}/app/lib:${site_dir}/app/site_modules:${NODE_PATH}"
 
 # The port the site will run under.
 #
@@ -25,22 +27,27 @@ NODE_PATH=app/lib
 # with all of the parameters. 
 PORT=3000
 
-# Set to true if the site must be run with the `coffee` command.
-coffeescript=true
+# You should set this to 'development' for a development environment, but we
+# always default to 'production' as a best practice.
+NODE_ENV='production'
+
+# Set to (0) true if the site must be run with the `coffee` command. Otherwise,
+# set to 1 (false) or leave unset.
+coffeescript=1
 
 # The path, relative to the site's main directory, to the script to be run with
-# the node or coffee command.
-server_script=app/server.coffee
+# the node or coffee command. Add a preceeding slash.
+server_script='/app'
 
 # The hostname the mongodb server is running under.
 mongodb_host=localhost
 
 # The name, if any, of the MongoDB database this site uses. ex:
-#   mongodb_db=node-express-sandbox
+#   mongodb_db=node-sandbox
 #
-# Testing aside, this should be set to a database name that in unique to this
+# Testing aside, this should be set to a database name that is unique to this
 # site in the current environment.
-mongodb_db=node-express-sandbox
+mongodb_db=node-sandbox
 
 # The directory files uploaded to the site are temporarily stored in before
 # being stored permanently or deleted.

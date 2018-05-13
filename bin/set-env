@@ -23,7 +23,6 @@ project_dir=$(cd ${script_dir} && cd ../ && pwd)
 
 # Add the project commands and the node bin directory to the front of the path
 # so that they override other versions we may have.
-#PATH=${HOME}/work/areas/web/projects/sakuramai.ca/bin:${HOME}/work/areas/web/projects/sakuramai.ca/lib/node/bin:${PATH}
 PATH=${project_dir}/bin:${project_dir}/lib/node/bin:${PATH}
 
 
@@ -32,9 +31,8 @@ PATH=${project_dir}/bin:${project_dir}/lib/node/bin:${PATH}
 # 128 in Ubuntu 12.04.
 #
 # There should be a way to set this permanently for the system, but for now,
-# setting this at runtime will let us run a compound site in development mode.
-# This should not be a problem for a deployed CompoundJS site because `watch`
-# is only used in dev mode.
+# setting this at runtime will let us run commands that watch large numbers of
+# files for changes. We tend to only do that in development.
 #
 # This fix was found here:
 #   http://stackoverflow.com/questions/10129496/error-starting-todos-example

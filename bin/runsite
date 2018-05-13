@@ -17,16 +17,30 @@ start_dir="$(pwd)"
 
 
 # Set some defaults before we bring in the runtime config
-NODE_PATH=app/lib
-PORT=3000
-coffeescript=false
-server_script=app/server.js
+
+NODE_PATH="${site_dir}/app/lib:${site_dir}/app/site_modules:${NODE_PATH}"
+
+if [ -z "${PORT}" ]
+then
+    PORT=3000
+fi
+
+server_script='/app'
+
+if [ -z "${NODE_ENV}" ]
+then
+    NODE_ENV='production'
+fi
 
 # Source the runtime config, if any.
-if [ -f ${site_dir}/config/runtime ]; then source ${site_dir}/config/runtime; fi
 
+if [ -f ${site_dir}/config/runtime ]
+then
+    source ${site_dir}/config/runtime
+fi
 
-if $coffeescript; then
+if [[ $coffeescript = 0 ]]
+then
     run_command=coffee
 else
     run_command=node
@@ -34,8 +48,8 @@ fi
 
 
 # cd to the app directory so connect-assets can locate things properly.
-cd `dirname ${site_dir}/${server_script}`
+cd `dirname "${site_dir}${server_script}"`
 
 # We have to assign the the NODE_PATH variable here, in this command or it will
 # have no effect. The others are assigned here just in case.
-NODE_PATH=${site_dir}/${NODE_PATH} PORT=${PORT} NODE_ENV=${NODE_ENV} $run_command ${site_dir}/${server_script}
+NODE_PATH="${NODE_PATH}" PORT=${PORT} NODE_ENV=${NODE_ENV} $run_command ${site_dir}${server_script}

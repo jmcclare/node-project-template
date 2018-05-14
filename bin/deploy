@@ -19,7 +19,6 @@ site_dir=`cd $(dirname $0); cd ..; pwd`
 
 echo
 echo
-#echo "Copying site files to /tmp on ${server}..."
 echo "Syncing files to site directory ${remote_site_name} on server ${server}..."
 echo
 
@@ -27,6 +26,16 @@ echo
 rsync -rltp --delete --exclude=/app --exclude=server-info.txt --exclude=.htpasswd --exclude=.git --exclude=.gitignore --exclude=.gitatributes ${site_dir}/ ${server_user}@${server}:/srv/www/${remote_site_name}
 # Sync the built app.
 rsync -rltp --delete --exclude='/public/_data' --exclude=.git --exclude=.gitignore --exclude=.gitatributes ${site_dir}/app/build/ ${server_user}@${server}:/srv/www/${remote_site_name}/app
+
+
+if [ -d "${site_dir}/app/.git" ]
+then
+    # Place the current git commit ID in a text file in the deployed app
+    # directory for troubleshooting.
+    commit_id="$(git rev-parse HEAD)"
+    ssh ${server_user}@${server} "cd /srv/www/${remote_site_name}/app; echo $commit_id >> git-commit-id"
+fi
+
 
 # Fix the site dir permissions that rsync may have broken. rsync matches it to
 # our local directory, which may be wrong for the server.
